@@ -1,0 +1,26 @@
+# Byte-compiled / optimized
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Local model artifacts (regenerable via `polaris train-tiny`)
+.polaris_model/
+ifai_model/
+
+# Audit logs (local runs)
+*.jsonl
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

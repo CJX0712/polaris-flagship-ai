@@ -1,0 +1,32 @@
+创新旗舰 AI · ifai
+Copyright 2026 晨星 (Morningstar) / CJX0712
+
+This product includes software developed on top of the following
+publicly known algorithms, papers and systems ("prior art"), reused under
+the project's "zero-rewrite / 集大成" principle. The underlying works remain
+the property of their respective authors and are distributed under their own
+licenses.
+
+Prior art (non-exhaustive):
+  - Transformer (Vaswani et al., 2017)
+  - RoPE (Su et al., 2024), RMSNorm (Zhang & Sennrich, 2019)
+  - SwiGLU (Shazeer, 2020), GQA (Ainslie et al., 2023)
+  - MoE / Switch (Fedus et al., 2022), weight tying (Press & Wolf, 2017)
+  - FlashAttention online softmax (Dao et al., 2022)
+  - PagedAttention / vLLM (Kwon et al., 2023)
+  - Continuous Batching / Orca (Yu et al., 2022)
+  - Speculative Decoding (Leviathan et al., 2023; Chen et al., 2023)
+  - AdamW (Loshchilov & Hutter, 2019)
+  - LoRA (Hu et al., 2022)
+  - Reverse-mode automatic differentiation (Griewank & Walther, 2008)
+  - BM25 (Robertson & Zaragoza, 2009)
+  - HNSW (Malkov & Yashunin, 2018)
+  - Reciprocal Rank Fusion (Cormack et al., 2009)
+  - Cross-Encoder re-ranking (Nogueira & Cho, 2019)
+  - ReAct (Yao et al., 2022), Reflexion (Shinn et al., 2023)
+  - MemGPT (Packer et al., 2023)
+  - Perplexity (Jelinek et al., 1977)
+  - BPE / byte-level BPE (Sennrich et al., 2016; Radford et al., 2019)
+  - OpenAI REST / SSE protocol
+
+Licensed under the Apache License, Version 2.0.

@@ -1,0 +1,43 @@
+北极星 POLARIS · 第三方组件与算法出处（NOTICE）
+=================================================
+
+本项目（polaris-flagship-ai）遵循「零重写 · 集大成」原则，不复制任何
+第三方项目源码；本 NOTICE 逐条列出所依赖/复用的第三方组件与算法思想，
+与 docs/REFERENCES.md 对应。
+
+1. ifai（innovation-flagship-ai v0.8.0）
+   作者：晨星 (Morningstar)，许可证：Apache-2.0
+   形式：源码 vendor 于 third_party/ifai/（原样保留其 LICENSE/NOTICE，
+   未做任何修改；tests/unit/test_zero_rewrite.py 抽样哈希机检）。
+   内容：L0–L10 全栈（算子/模型/推理/训练/检索/智能体/服务/评测/ISA）。
+
+2. tianji-ai（天玑）
+   作者：晨星 (Morningstar)，许可证：MIT
+   形式：经 ifai L10 间接复用（1024 微指令 ISA 的移植源）。
+
+3. nexus-flagship（NEXUS）
+   作者：晨星 (Morningstar)，许可证：MIT
+   形式：设计思想复用（EngineAdapter 契约 / Dispatch 策略 / G1-G3 门禁）。
+
+4. llama.cpp
+   作者：Georgi Gerganov 及贡献者，许可证：MIT
+   形式：运行时经 HTTP 接入其官方 server（OpenAI 兼容面）；本项目不含
+   其任何源码，亦不打包任何模型权重。
+
+5. numpy
+   许可证：BSD-3-Clause；本项目唯一第三方 Python 依赖。
+
+6. 算法思想（论文，详见 docs/REFERENCES.md）
+   Vaswani et al. 2017（Transformer）；Dao 2023（FlashAttention-2）；
+   Su et al. 2021（RoPE）；Zhang & Sennrich 2019（RMSNorm）；
+   Shazeer 2020（SwiGLU）；Ainslie et al. 2023（GQA）；
+   Fedus et al. 2022（Switch/MoE）；Kwon et al. 2023（PagedAttention）；
+   Leviathan et al. 2023（投机解码）；Loshchilov & Hutter 2019（AdamW）；
+   Hu et al. 2021（LoRA）；Jacob et al. 2018（QAT）；
+   Keller Jordan 2024（Muon/Newton–Schulz）；Robertson & Zaragoza 2009
+   （BM25）；Cormack et al. 2009（RRF）；Yao et al. 2022（ReAct）；
+   Packer et al. 2023（MemGPT）；Sennrich et al. 2016（BPE）；
+   Claessen & Hughes 2000（QuickCheck 属性测试思想）；
+   RFC 6962（Merkle 日志）；RFC 8785（JCS 规范化 JSON 思想）。
+
+本项目自身代码：Apache-2.0，© 2026 晨星 (Morningstar) / CJX0712。

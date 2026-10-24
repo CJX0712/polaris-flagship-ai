@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "polaris-flagship-ai"
+version = "1.0.0"
+description = "北极星 POLARIS - 晨星旗舰 AI 操作系统：真实世界顶级引擎(llama.cpp) x 1024 微指令 ISA x 可证门禁 x 治理审计。零重写·集大成·可运行·可复现·可验证"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [{ name = "晨星 (Morningstar)", email = "polaris@morningstar.dev" }]
+keywords = ["ai", "llm", "llama.cpp", "operating-system", "isa", "micro-instructions", "agent", "verification", "flagship"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+# 零重写铁律：Polaris 自身只依赖 numpy；世界顶级全栈 ifai 以源码形式
+# vendor 于 third_party/ifai/（Apache-2.0，原样保留 LICENSE/NOTICE）。
+dependencies = ["numpy>=1.24"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+polaris = "polaris.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/CJX0712/polaris-flagship-ai"
+Repository = "https://github.com/CJX0712/polaris-flagship-ai"
+Documentation = "https://github.com/CJX0712/polaris-flagship-ai/blob/main/docs/ARCHITECTURE.md"
+
+[tool.setuptools.packages.find]
+include = ["polaris*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
