@@ -29,8 +29,13 @@ ensure_vendor_path()
 
 from ifai.l10 import FAMILIES, FAMILY_KIND, MICROOPS, count_ops  # noqa: E402
 
+from ..compiler import (  # noqa: E402
+    ISAProgram,
+    compile_intent as _compile_intent,
+)
 from ..engines.base import EngineAdapter, EngineResult  # noqa: E402
 from .audit import AuditLog  # noqa: E402
+from .consensus import Consensus, ConsensusResult  # noqa: E402
 from .gates import GateReport, run_gates  # noqa: E402
 from .registry import EngineRegistry  # noqa: E402
 from .scheduler import DispatchRequest, NoEngineAvailable, Scheduler  # noqa: E402
@@ -49,6 +54,7 @@ class PolarisOS:
         self.scheduler = Scheduler(self.registry)
         self.audit = AuditLog(path=audit_path)
         self.g1_replay = g1_replay
+        self._consensus: Optional[Consensus] = None
 
     # ---------------------------------------------------------------- 引擎
     def register_engine(self, adapter: EngineAdapter) -> EngineAdapter:
@@ -143,6 +149,101 @@ class PolarisOS:
         }
         return result
 
+    # ---------------------------------------------------------------- 共识
+    @property
+    def consensus(self) -> Consensus:
+        """共识器（惰性单例）：Self-Consistency / 多引擎交叉验证。"""
+        if self._consensus is None:
+            self._consensus = Consensus()
+        return self._consensus
+
+    def self_consistency(
+        self,
+        prompt: str,
+        *,
+        k: int = 5,
+        max_tokens: int = 64,
+        temperature: float = 0.8,
+        seed: int = 0,
+        preferred: Optional[str] = None,
+    ) -> ConsensusResult:
+        """同引擎采样 k 次后多数投票（Wang et al. 2022），产出带 ``agreement``。
+
+        引擎选取走与 ``dispatch`` 完全相同的调度器（``require_deterministic=
+        False``，因为 temperature>0 本就是不确定的采样），决策同样入审计。
+        """
+        request = DispatchRequest(
+            prompt=prompt,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            seed=seed,
+            require_deterministic=False,
+            preferred=preferred,
+        )
+        decision = self.scheduler.decide(request)
+        adapter = decision.adapter
+        cr = self.consensus.self_consistency(
+            adapter,
+            prompt,
+            k=k,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            seed=seed,
+        )
+        self.audit.append(
+            {
+                "intent": "self-consistency",
+                "prompt_fp": _fp(prompt),
+                "engine": adapter.name,
+                "kind": adapter.kind,
+                "reason": decision.reason,
+                "k": k,
+                "agreement": round(cr.agreement, 6),
+                "support": cr.support,
+                "mean_pairwise": round(cr.mean_pairwise, 6),
+                "gates": cr.gates,
+                "result_fp": cr.fingerprint(),
+            }
+        )
+        return cr
+
+    def cross_engine(
+        self,
+        prompt: str,
+        *,
+        engines: Optional[list[str]] = None,
+        max_tokens: int = 64,
+        seed: int = 0,
+    ) -> ConsensusResult:
+        """多引擎交叉验证：把同一 prompt 交给 N 个已注册的独立引擎。
+
+        Args:
+            engines: 指定引擎名；None = 全部**当前可用**引擎（按名排序，确定性）。
+        """
+        if engines is None:
+            adapters = [a for a in self.registry.all() if a.available()]
+        else:
+            adapters = [self.registry.get(n) for n in engines]
+        if not adapters:
+            raise NoEngineAvailable("no engine available for cross-engine consensus")
+        cr = self.consensus.cross_engine(
+            adapters, prompt, max_tokens=max_tokens, seed=seed
+        )
+        self.audit.append(
+            {
+                "intent": "cross-engine",
+                "prompt_fp": _fp(prompt),
+                "engines": [a.name for a in adapters],
+                "agreement": round(cr.agreement, 6),
+                "support": cr.support,
+                "total": cr.total,
+                "mean_pairwise": round(cr.mean_pairwise, 6),
+                "gates": cr.gates,
+                "result_fp": cr.fingerprint(),
+            }
+        )
+        return cr
+
     # ---------------------------------------------------------------- ISA
     def run_isa(self, op_name: str, *args: Any) -> Any:
         """直接执行一条 1024 微指令 ISA 成员（如 ``smax.softmax``）。
@@ -177,6 +278,31 @@ class PolarisOS:
         from ifai.l10 import run_all
 
         return run_all()
+
+    # ---------------------------------------------------------------- 编译
+    def compile_intent(self, intent: str, **kw: Any) -> ISAProgram:
+        """把意图编译为 1024 微指令 ISA 程序（确定性子集），并入审计。
+
+        零重写：指令集来自 ifai L10；本方法只是把编译器挂到操作系统上。
+        """
+        prog = _compile_intent(intent, **kw)
+        self.audit.append(
+            {
+                "intent": "compile",
+                "text_fp": _fp(intent),
+                "ops": [s.op for s in prog.steps],
+                "matches": [{"family": f, "score": s} for f, s in prog.matches[:3]],
+                "dropped": len(prog.dropped),
+                "deterministic": prog.deterministic,
+                "gates": prog.gates,
+                "program_fp": prog.fingerprint(),
+            }
+        )
+        return prog
+
+    def run_intent(self, intent: str, x: Any, **kw: Any) -> Any:
+        """编译 + 执行一步到位（``compile_intent(intent).run(x)``）。"""
+        return self.compile_intent(intent, **kw).run(x)
 
     # ---------------------------------------------------------------- 审计
     def audit_tail(self, n: int = 10) -> list[dict[str, Any]]:

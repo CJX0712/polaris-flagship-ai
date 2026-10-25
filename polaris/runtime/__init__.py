@@ -1,17 +1,28 @@
 """操作系统层（runtime）公开接口。
 
-零重写 · 出处：四件套 + 门面，对应 NEXUS 的 L5/L6/L8 在 Python 侧的合流：
+零重写 · 出处：五件套 + 门面，对应 NEXUS 的 L5/L6/L8 在 Python 侧的合流：
 
 - ``registry``   引擎注册表（设备管理器）
 - ``scheduler``  约束调度器（按确定性/上下文/优先级选引擎）
 - ``gates``      运行时门禁 G1 确定性 / G2 有限性 / G3 契约
 - ``audit``      哈希链审计账本（追加-only，可独立重放验证）
+- ``consensus``  共识层：Self-Consistency（Wang 2022）+ 多引擎交叉验证
 - ``orchestrator`` PolarisOS 门面（单一入口）
 """
 
 from __future__ import annotations
 
 from .audit import AuditLog
+from .consensus import (
+    Consensus,
+    ConsensusResult,
+    bigrams,
+    consensus_gates,
+    jaccard,
+    majority_vote,
+    mean_pairwise_similarity,
+    similarity,
+)
 from .gates import (
     GateReport,
     gate_g1_determinism,
@@ -37,4 +48,12 @@ __all__ = [
     "DispatchDecision",
     "NoEngineAvailable",
     "Scheduler",
+    "Consensus",
+    "ConsensusResult",
+    "consensus_gates",
+    "majority_vote",
+    "mean_pairwise_similarity",
+    "jaccard",
+    "bigrams",
+    "similarity",
 ]

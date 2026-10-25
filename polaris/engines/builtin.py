@@ -30,11 +30,24 @@ from ifai.sdk import IFAI  # noqa: E402  （vendor 路径注入后再导入）
 from .base import EngineAdapter, EngineResult  # noqa: E402
 
 
+def _default_model_dir() -> Optional[str]:
+    """默认模型目录：工作区下已存在 ``.polaris_model`` 就直接复用。
+
+    这一条很实际：现场训练约 16 秒，每次 CLI 调用重训一遍是纯浪费。
+    已训练过 ⇒ 直接加载；没有 ⇒ 返回 None，由 ``_ensure_model`` 现场训练。
+    """
+    path = os.path.join(os.getcwd(), ".polaris_model")
+    if os.path.exists(os.path.join(path, "manifest.json")):
+        return path
+    return None
+
+
 class BuiltinEngineAdapter(EngineAdapter):
     """ifai 内置引擎适配器（确定性回退保证）。
 
     Args:
-        model_dir: 已训练模型目录（含 manifest.json）。None 时按需现场训练。
+        model_dir: 已训练模型目录（含 manifest.json）。None 时优先复用
+            ``./.polaris_model``，仍无则按需现场训练。
         seed: 全局种子（经 ifai 全局 RNG，保证逐位可复现）。
         allow_autotrain: 无模型时是否现场训练微型模型（默认允许）。
         train_steps: 现场训练步数（默认 120，CPU 秒级）。
@@ -56,7 +69,15 @@ class BuiltinEngineAdapter(EngineAdapter):
         allow_autotrain: bool = True,
         train_steps: int = 120,
     ):
-        self.model_dir = model_dir
+        # 能力声明按实例拷贝 —— 类属性是全局共享的，就地改会污染其他实例
+        self.capabilities = dict(self.capabilities)
+        if model_dir is not None:
+            self.model_dir = model_dir
+        elif allow_autotrain:
+            # 允许训练时才自动拾取已有模型（避免重复训练）；否则尊重「不训练」语义
+            self.model_dir = _default_model_dir()
+        else:
+            self.model_dir = None  # 无模型且禁止训练 ⇒ 诚实占位，绝不静默加载
         self.seed = int(seed)
         self.allow_autotrain = allow_autotrain
         self.train_steps = int(train_steps)
@@ -84,6 +105,7 @@ class BuiltinEngineAdapter(EngineAdapter):
             from ifai.cli import cmd_train  # ifai 官方训练命令，零重写
 
             out = self.model_dir or os.path.join(os.getcwd(), ".polaris_model")
+            self.model_dir = out
             os.makedirs(out, exist_ok=True)
             cmd_train(
                 argparse.Namespace(

@@ -24,10 +24,20 @@
    形式：运行时经 HTTP 接入其官方 server（OpenAI 兼容面）；本项目不含
    其任何源码，亦不打包任何模型权重。
 
-5. numpy
+5. 引擎联邦预设所指的世界顶级引擎（v1.1.0 新增）
+   vLLM（vllm-project/vllm, Apache-2.0）；SGLang（sgl-project/sglang,
+   Apache-2.0）；Ollama（ollama/ollama, MIT）；LM Studio（商业授权）；
+   HuggingFace TGI（huggingface/text-generation-inference, Apache-2.0）；
+   MLX（ml-explore/mlx-lm, MIT）；TensorRT-LLM（NVIDIA, Apache-2.0）；
+   NVIDIA NIM（商业授权）。
+   形式：**全部仅经 HTTP 接入其各自实现的 OpenAI Completions 兼容接口**，
+   本项目不含其任何源码，也不分发其任何权重。预设表仅记录默认地址、
+   健康端点、环境变量名与官方引用 URL。
+
+6. numpy
    许可证：BSD-3-Clause；本项目唯一第三方 Python 依赖。
 
-6. 算法思想（论文，详见 docs/REFERENCES.md）
+7. 算法思想（论文，详见 docs/REFERENCES.md）
    Vaswani et al. 2017（Transformer）；Dao 2023（FlashAttention-2）；
    Su et al. 2021（RoPE）；Zhang & Sennrich 2019（RMSNorm）；
    Shazeer 2020（SwiGLU）；Ainslie et al. 2023（GQA）；
@@ -38,6 +48,10 @@
    （BM25）；Cormack et al. 2009（RRF）；Yao et al. 2022（ReAct）；
    Packer et al. 2023（MemGPT）；Sennrich et al. 2016（BPE）；
    Claessen & Hughes 2000（QuickCheck 属性测试思想）；
-   RFC 6962（Merkle 日志）；RFC 8785（JCS 规范化 JSON 思想）。
+   RFC 6962（Merkle 日志）；RFC 8785（JCS 规范化 JSON 思想）；
+   Wang et al. 2022（Self-Consistency, arXiv:2203.11171）；
+   Jaccard 1901（集合相似度系数）；
+   Dean & Barroso 2013（Tail at Scale, CACM）；
+   LLVM（编译器 Pass / type legalization 思想）。
 
 本项目自身代码：Apache-2.0，© 2026 晨星 (Morningstar) / CJX0712。

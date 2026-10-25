@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "polaris-flagship-ai"
-version = "1.0.0"
-description = "北极星 POLARIS - 晨星旗舰 AI 操作系统：真实世界顶级引擎(llama.cpp) x 1024 微指令 ISA x 可证门禁 x 治理审计。零重写·集大成·可运行·可复现·可验证"
+version = "1.1.0"
+description = "北极星 POLARIS - 晨星旗舰 AI 操作系统：引擎联邦(llama.cpp/vLLM/SGLang/Ollama...) x 1024 微指令 ISA x 意图编译器 x 共识层 x 可证门禁 x 治理审计。零重写·集大成·可运行·可复现·可验证"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "Apache-2.0" }
 authors = [{ name = "晨星 (Morningstar)", email = "polaris@morningstar.dev" }]
-keywords = ["ai", "llm", "llama.cpp", "operating-system", "isa", "micro-instructions", "agent", "verification", "flagship"]
+keywords = ["ai", "llm", "llama.cpp", "vllm", "sglang", "ollama", "operating-system", "isa", "micro-instructions", "compiler", "consensus", "self-consistency", "agent", "verification", "flagship"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
