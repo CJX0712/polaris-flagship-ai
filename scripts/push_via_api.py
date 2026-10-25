@@ -22,7 +22,6 @@ import sys
 
 R = "repos/CJX0712/polaris-flagship-ai"
 
-
 def gh_api(endpoint, payload=None, method=None, allow_fail=False):
     cmd = ["gh", "api", endpoint]
     if method:
@@ -89,6 +88,17 @@ def local_blob_map():
 
 
 def main():
+    # The push mirrors the INDEX, so the index must be in sync with the
+    # working tree -- otherwise we would silently publish stale content.
+    dirty = subprocess.check_output(
+        ["git", "status", "--porcelain"]
+    ).decode().strip()
+    if dirty:
+        print("ABORT: working tree has uncommitted changes:")
+        print(dirty[:600])
+        print("\nStage them first:  git add -A")
+        sys.exit(2)
+
     parent = current_main_sha()
     print("remote main:", parent or "(empty repo)")
 
@@ -105,10 +115,18 @@ def main():
     entries = []
     for i, f in enumerate(files):
         if f in todo:
-            content = base64.b64encode(open(f, "rb").read()).decode()
+            # Read the blob content from the INDEX (git cat-file), NOT the
+            # working tree: the index holds the canonical, LF-normalized bytes
+            # (see .gitattributes), while a Windows working tree may hold CRLF.
+            # Pushing the working tree would store CRLF in the repo and break
+            # byte-exact fidelity with the vendored upstream ifai.
+            data = subprocess.check_output(["git", "cat-file", "blob", local[f]])
+            content = base64.b64encode(data).decode()
             sha = json.loads(
                 gh_api(f"{R}/git/blobs", {"content": content, "encoding": "base64"})
             )["sha"]
+            if sha != local[f]:
+                print(f"  WARN blob sha mismatch for {f}: {sha} != {local[f]}")
             if i % 10 == 0 or i == len(files) - 1:
                 print(f"  blob [{i + 1}/{len(files)}] {f}")
         else:

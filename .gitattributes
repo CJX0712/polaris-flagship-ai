@@ -1,0 +1,26 @@
+# 统一行尾：仓库内一律存 LF（跨平台 clone 逐字节一致）
+#
+# 零重写细节：vendor 的 ifai 上游以 LF 存储（git ls-files --eol 显示 i/lf）。
+# 若不声明本文件，Windows 的 core.autocrlf=true 会把 CRLF 写进仓库，
+# 使 vendor 副本与上游不再逐字节相同 —— 违反「原样保留」的承诺。
+# 本文件同时保证：任何平台 clone 出来的内容完全一致。
+
+* text=auto eol=lf
+
+# 二进制文件不参与行尾转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.gguf binary
+*.safetensors binary
+*.bin binary
+*.pt binary
+*.pth binary
+*.onnx binary
+*.pdf binary
+*.whl binary
+*.so binary
+*.dylib binary
+*.dll binary
